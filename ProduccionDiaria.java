@@ -28,6 +28,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 class RegistroProduccion {
@@ -155,6 +157,7 @@ public class ProduccionDiaria {
                 .filter(defectosAltos)
                 .collect(Collectors.toList());
 
+                
         //calcular el cumplimiento de metas
         Predicate<RegistroProduccion> cumpleMeta = 
                 registro -> registro.getCantidadProducida() >= registro.getMetaProduccion();
@@ -162,6 +165,20 @@ public class ProduccionDiaria {
         List<RegistroProduccion> productosCumplenMeta = registros.stream()
                 .filter(cumpleMeta)
                 .collect(Collectors.toList());
+
+
+        //conocer el costo total de fabricación
+        Function<RegistroProduccion, Double> costoTotal = 
+                registro -> registro.getCantidadProducida() * registro.getCostoUnitario();
+
+
+        Callable<Double> costoTotalProduccion = () -> registros.stream()
+                .map(costoTotal)
+                .reduce(0.0, Double::sum);
+
+        Double costoTotalProduccionValor = costoTotalProduccion.call();
+        System.out.println("Costo total de producción:" + costoTotalProduccionValor);
+        
 
         
     }
