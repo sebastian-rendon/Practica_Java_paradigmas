@@ -180,6 +180,18 @@ public class ProduccionDiaria {
         System.out.println("Costo total de producción:" + costoTotalProduccionValor);
         
 
+        //determinar pérdidas económicas asociadas a productos defectuosos
+        Function<RegistroProduccion, Double> perdidasEconomicas = 
+                registro -> registro.getCantidadDefectuosa() * registro.getCostoUnitario();
+        
+        Callable<Double> perdidasTotales = () -> registros.stream()
+                .map(perdidasEconomicas)
+                .reduce(0.0, Double::sum);
+
+        Double perdidasTotalesValor = perdidasTotales.call();
+        System.out.println("Pérdidas económicas totales: " + perdidasTotalesValor);
+
+
         
     }
 }
