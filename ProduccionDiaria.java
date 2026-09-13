@@ -28,6 +28,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -190,6 +191,16 @@ public class ProduccionDiaria {
 
         Double perdidasTotalesValor = perdidasTotales.call();
         System.out.println("Pérdidas económicas totales: " + perdidasTotalesValor);
+
+
+        //analizar el desempeño general de cada línea de producción
+        Map<String, Integer> produccionPorLinea = registros.stream()
+                .collect(Collectors.groupingBy(
+                        registro -> registro.getLineaProduccion(),
+                        Collectors.summingInt(registro -> registro.getCantidadProducida())
+                ));
+
+        System.out.println("Producción total por línea: " + produccionPorLinea);
 
 
         
