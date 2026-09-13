@@ -27,13 +27,7 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.function.*;
-import java.util.stream.Collectors;
 
 class RegistroProduccion {
     private final int codigoProducto;
@@ -136,4 +130,26 @@ class RegistroProduccion {
                 '}';
     }
 }
+
+public class ProduccionDiaria {
+
+    public static void main(String[] args) throws Exception {
+        
+        List<RegistroProduccion> registros = new ArrayList<>(Arrays.asList(
+        
+                new RegistroProduccion(1, "Producto A", "Linea 1", 100, 5, 10.0, 60, 50.0, 120),
+                new RegistroProduccion(2, "Producto B", "Linea 1", 80, 10, 12.0, 50, 40.0, 100),
+                new RegistroProduccion(3, "Producto C", "Linea 2", 150, 15, 8.0, 70, 60.0, 140),
+                new RegistroProduccion(4, "Producto D", "Linea 2", 90, 8, 15.0, 55, 45.0, 110),
+                new RegistroProduccion(5, "Producto E", "Linea 3", 120, 12, 9.0, 65, 55.0, 130)
+
+        ));
+
+        
+        //Identificar productos con niveles altos de defectos
+
+    }
+}
+
+
 
