@@ -155,7 +155,15 @@ public class ProduccionDiaria {
                 .filter(defectosAltos)
                 .collect(Collectors.toList());
 
+        //calcular el cumplimiento de metas
+        Predicate<RegistroProduccion> cumpleMeta = 
+                registro -> registro.getCantidadProducida() >= registro.getMetaProduccion();
+        
+        List<RegistroProduccion> productosCumplenMeta = registros.stream()
+                .filter(cumpleMeta)
+                .collect(Collectors.toList());
 
+        
     }
 }
 
