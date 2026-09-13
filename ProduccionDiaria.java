@@ -28,6 +28,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class RegistroProduccion {
     private final int codigoProducto;
@@ -147,6 +148,13 @@ public class ProduccionDiaria {
 
         
         //Identificar productos con niveles altos de defectos
+        Predicate<RegistroProduccion> defectosAltos =   
+                registro -> registro.getCantidadDefectuosa() > 10;
+
+        List<RegistroProduccion> productosDefectuosos = registros.stream()
+                .filter(defectosAltos)
+                .collect(Collectors.toList());
+
 
     }
 }
