@@ -299,5 +299,103 @@ public class ProduccionDiaria {
         registros.set(2, ajustarCostoUnitario.apply(registros.get(2)));
 
         System.out.println("Registro con costo ajustado: " + registros.get(2));  
+
+
+
+ 
+        //
+        Runnable cierreTurno = () -> {
+            try {
+                System.out.println("\n=== Cierre de Turno ===");
+                System.out.println("Cantidad de registros procesados: " + registros.size());
+                System.out.println("Producción total del turno: " + cantidadTotal.call());
+                System.out.println("Costo total de fabricación: " + costoTotalProduccion.call());
+                System.out.println("Pérdidas económicas totales: " + perdidasTotales.call());
+                System.out.println("Turno cerrado correctamente.");
+            } catch (Exception e) {
+                System.out.println("Error al cerrar el turno: " + e.getMessage());
+            }
+        };
+
+        cierreTurno.run();
+
+        // Reporte final consolidado
+        Runnable reporteFinal = () -> {
+            try {
+                System.out.println("\n========================================");
+                System.out.println("             REPORTE FINAL");
+                System.out.println("========================================");
+
+                //  Líneas existentes
+                List<String> lineasExistentes = registros.stream()
+                        .map(RegistroProduccion::getLineaProduccion)
+                        .distinct()
+                        .collect(Collectors.toList());
+                System.out.println("- Líneas existentes: " + lineasExistentes);
+
+
+                //  Producción total por línea
+                Map<String, Integer> totalPorLinea = registros.stream()
+                        .collect(Collectors.groupingBy(
+                                RegistroProduccion::getLineaProduccion,
+                                Collectors.summingInt(RegistroProduccion::getCantidadProducida)
+                        ));
+                System.out.println("- Producción total por línea: " + totalPorLinea);
+
+
+                //  Productos críticos (niveles altos de defectos)
+                List<String> criticos = productosDefectuosos.stream()
+                        .map(RegistroProduccion::getNombreProducto)
+                        .collect(Collectors.toList());
+                System.out.println("- Productos críticos: " + criticos);
+
+
+                // Productos que superaron la meta
+                List<String> superaronMeta = productosCumplenMeta.stream()
+                        .map(RegistroProduccion::getNombreProducto)
+                        .collect(Collectors.toList());
+                System.out.println("- Productos que superaron la meta: " + superaronMeta);
+
+
+                //  Unidades defectuosas
+                int unidadesDefectuosas = registros.stream()
+                        .map(RegistroProduccion::getCantidadDefectuosa)
+                        .reduce(0, Integer::sum);
+                System.out.println("- Unidades defectuosas: " + unidadesDefectuosas);
+
+
+                //  Costo total de producción
+                System.out.println("- Costo total de producción: " + costoTotalProduccion.call());
+
+
+                // Pérdidas económicas
+                System.out.println("- Pérdidas económicas: " + perdidasTotales.call());
+
+
+                // Producto con mayor pérdida
+                Optional<RegistroProduccion> mayorPerdida = registros.stream()
+                        .max(Comparator.comparing(r -> r.getCantidadDefectuosa() * r.getCostoUnitario()));
+                RegistroProduccion prodMayorPerdida = mayorPerdida.get();
+                double valorMayorPerdida = prodMayorPerdida.getCantidadDefectuosa() * prodMayorPerdida.getCostoUnitario();
+                System.out.println("- Producto con mayor pérdida: " + prodMayorPerdida.getNombreProducto() + " ($" + valorMayorPerdida + ")");
+
+                
+                // 9. Línea con mayor cantidad producida
+                Map.Entry<String, Integer> lineaMayorProduccion = totalPorLinea.entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .get();
+                System.out.println("- Línea con mayor cantidad producida: " + lineaMayorProduccion.getKey() + " (" + lineaMayorProduccion.getValue() + " unidades)");
+
+                System.out.println("========================================");
+            } catch (Exception e) {
+                System.out.println("Error al generar el reporte final: " + e.getMessage());
+            }
+        };
+
+        reporteFinal.run();
+
     }
+
+
+    
 }
