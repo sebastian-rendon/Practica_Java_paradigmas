@@ -8,6 +8,10 @@
 > Se debe tener total claridad sobre la implementación utilizada. Si el código no se sabe sustentar adecuadamente en clase, la calificación será de **0.0**.
 
 ---
+## Nombres
+**Juan Fernando Castañeda Agudelo**
+**Brayan Camilo Gutierrez Castañeda**
+**Sebastian Rendon Grisales**
 
 ## Descripción del Proyecto
 

@@ -27,10 +27,16 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 class RegistroProduccion {
@@ -202,10 +208,96 @@ public class ProduccionDiaria {
 
         System.out.println("Producción total por línea: " + produccionPorLinea);
 
+         //calcular la cantidad total producida
+        Function<RegistroProduccion, Integer> cantidadTotalProducida = 
+                registro -> registro.getCantidadProducida();
+
+        Callable<Integer> cantidadTotal = () -> registros.stream()
+                .map(cantidadTotalProducida)
+                .reduce(0, Integer::sum);
+
+        Double costoTotalProduccionValue = costoTotalProduccion.call();
+        System.out.println("Costo total de producción: " + costoTotalProduccionValue);
+
+
+        //determinar cuánto dinero se ha invertido en producción DUDA
+        // El dinero invertido corresponde al total acumulado en fabricación (cantidad * costo unitario)
+        Callable<Double> dineroInvertido = () -> registros.stream()
+                .map(costoTotal)
+                .reduce(0.0, Double::sum);
+
+        Double dineroInvertidoTotal = dineroInvertido.call();
+        System.out.println("Dinero invertido en producción: " + dineroInvertidoTotal);
+
+
+        //El sistema debe permitir transformar los registros de producción en información resumida para los supervisores
+        Function<RegistroProduccion, String> resumenProduccion = 
+                registro -> "Producto: " + registro.getNombreProducto() +
+                            ", Línea: " + registro.getLineaProduccion() +
+                            ", Producido: " + registro.getCantidadProducida() +
+                            ", Defectuoso: " + registro.getCantidadDefectuosa() +
+                            ", Costo Unitario: " + registro.getCostoUnitario();
+        
+        registros.stream()
+                .map(resumenProduccion)
+                .forEach(System.out::println);
+
+
+        //obtener los productos de mayor y menor desempeño
+        Optional<RegistroProduccion> mayorDesempeno = registros.stream()
+        .max(Comparator.comparing(RegistroProduccion::getCantidadProducida));
+
+        RegistroProduccion productoMayorDesempeno = mayorDesempeno.get();
+        System.out.println("Producto de mayor desempeño: " + productoMayorDesempeno);
+        
+        
+        Optional<RegistroProduccion> menorDesempeno = registros.stream()
+        .min(Comparator.comparing(RegistroProduccion::getCantidadProducida));
+
+        RegistroProduccion productoMenorDesempeno = menorDesempeno.get();
+        System.out.println("Producto de menor desempeño: " + productoMenorDesempeno);
+
+
+        //identificar líneas con bajo cumplimiento
+        Map<String, Integer> metaPorLinea = registros.stream()
+                .collect(Collectors.groupingBy(
+                        RegistroProduccion::getLineaProduccion,
+                        Collectors.summingInt(RegistroProduccion::getMetaProduccion)
+                ));
+
+        List<String> lineasBajoCumplimiento = produccionPorLinea.keySet().stream()
+                .filter(linea -> produccionPorLinea.get(linea) < metaPorLinea.get(linea))
+                .collect(Collectors.toList());
+
+        System.out.println("Líneas con bajo cumplimiento: " + lineasBajoCumplimiento);            
 
         
+        //generar automáticamente un registro de producción de prueba
+        Supplier<RegistroProduccion> produccionPrueba = 
+            () -> new RegistroProduccion(6, "Producto F", "Linea 3", 110, 9, 11.0, 60, 50.0, 120);
+
+        RegistroProduccion nuevoRegistro = produccionPrueba.get();
+        registros.add(nuevoRegistro);
+
+
+        //modificar cantidades producidas cuando se reporten unidades adicionales
+        BiConsumer<RegistroProduccion, Integer> reportarUnidadesAdicionales = 
+                (registro, unidades) -> registro.setCantidadProducida(registro.getCantidadProducida() + unidades);
+
+        reportarUnidadesAdicionales.accept(registros.get(0), 20);
+
+        System.out.println("Registro actualizado: " + registros.get(0));
+
+
+        //aplicar ajustes porcentuales sobre determinados registros
+        UnaryOperator<RegistroProduccion> ajustarCostoUnitario =
+                registro -> {
+                    registro.setCostoUnitario(registro.getCostoUnitario() * 1.10);
+                    return registro;
+                };
+
+        registros.set(2, ajustarCostoUnitario.apply(registros.get(2)));
+
+        System.out.println("Registro con costo ajustado: " + registros.get(2));  
     }
 }
-
-
-
