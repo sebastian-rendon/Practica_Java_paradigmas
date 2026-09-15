@@ -216,8 +216,9 @@ public class ProduccionDiaria {
                 .map(cantidadTotalProducida)
                 .reduce(0, Integer::sum);
 
-        Double costoTotalProduccionValue = costoTotalProduccion.call();
-        System.out.println("Costo total de producción: " + costoTotalProduccionValue);
+
+        Integer cantidadTotalValor = cantidadTotal.call();
+        System.out.println("Cantidad total producida: " + cantidadTotalValor);
 
 
         //determinar cuánto dinero se ha invertido en producción DUDA
